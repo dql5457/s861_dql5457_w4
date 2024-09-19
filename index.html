@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>AngularJS Auth0 Front-End</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdn.auth0.com/js/auth0/9.17/auth0.min.js"></script>
+    <script src="app.js"></script>
+	<style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h2 {
+            color: #4caa4a;
+            margin-bottom: 20px;
+            font-weight: 500;
+            text-align: center;
+        }
+        button {
+            background-color: #4caa4a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 25%;
+            margin-top: 10px;
+			margin: auto;
+        }
+        button:hover {
+            background-color: #c5d5ca;
+        }
+		form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="text"], input[type="email"], input[type="password"], input[type="date"] {
+            width: 25%;
+            padding: 6px;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        label {
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .dashboard {
+            text-align: center;
+        }
+        .submitted {
+            background-color: #eaf3ee;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+		.logo {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .logo img {
+            max-width: 120px;
+            height: auto;
+        }
+    </style>
+</head>
+<body ng-controller="authController">
+    <div ng-if="!authenticated">
+		<div class="logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <h2>Login</h2>
+        <button ng-click="login()"><i class="fas fa-sign-in-alt"></i>Login with Auth0</button>
+    </div>
+    <div ng-if="authenticated">
+        <h2>Dashboard</h2>
+        <button ng-click="logout()"><i class="fas fa-sign-out-alt"></i>Logout</button>
+    </div>
+    <div ng-if="authenticated">
+        <h2>Data Submission Form</h2>
+        <form name="dataForm" ng-submit="submitForm(dataForm)" novalidate>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" ng-model="user.name" required><br>
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" ng-model="user.email" ng-pattern="/^[a-zA-Z]+@example\.com$/" required>
+			<span ng-show="dataForm.email.$error.required && dataForm.email.$touched" style="color: red;">Email is required.</span>
+			<span ng-show="dataForm.email.$error.email && dataForm.email.$touched" style="color: red;">Invalid email format.</span><br>
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" ng-model="user.password" ng-pattern="/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}$/" required>
+			<span ng-show="dataForm.password.$error.required && dataForm.password.$touched" style="color: red;">Password is required.</span><br>
+			<span ng-show="dataForm.password.$error.pattern && dataForm.password.$touched" style="color: red;">Invalid password format.</span><br>
+			<label for="dob">Date of Birth:</label>
+			<input type="date" id="dob" name="dob" ng-model="user.dob" required><br>
+			<label for="phone">Phone Number:</label>
+			<input type="text" id="phone" name="phone" ng-model="user.phone" required><br>
+			<label for="location">Location:</label>
+			<input type="text" id="location" name="location" ng-model="user.location" required><br>
+			<label for="expertise">Expertise:</label>
+			<input type="text" id="expertise" name="expertise" ng-model="user.expertise" required><br>
+			<label for="availability">Availability:</label>
+			<input type="date" id="availability" name="availability" ng-model="user.availability" required><br>
+            <button type="submit" ng-disabled="dataForm.$invalid">Submit</button>
+        </form>
+        <div ng-if="submitted">
+            <h3>Submitted Successfully!</h3>
+            <p>{{user | json}}</p>
+        </div>
+		<div class="sanitize-section">
+            <h2>Sanitize</h2>
+            <form name="sanitizeForm" ng-submit="sanitizeSubmission(user.name)" novalidate>
+                <label for="sanitizeName">Name:</label>
+                <input type="text" id="sanitizeName" name="sanitizeName" ng-model="sanitize.name" required>
+                <button type="submit" ng-disabled="sanitizeForm.$invalid">Sanitize</button>
+            </form>
+            <div ng-if="sanitized">
+                <h3>Sanitized Successfully!</h3>
+                <p>{{user | json}}</p>
+            </div>
+            <div ng-if="!sanitized && sanitizeForm.$submitted">
+                <p style="color: red;">Failed to sanitize. Please verify the name and try again.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
